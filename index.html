@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes Vault | Play Bold</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { 
+            --rcb-red: #cc0000; 
+            --rcb-gold: #b38b59; 
+            --rcb-yellow: #ffdd00; 
+            --card-bg: rgba(255, 255, 255, 0.95); 
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #b38b59 0%, #d4a373 50%, #8c6a42 100%);
+            background-attachment: fixed;
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        /* --- LOGO WATERMARK --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('https://imgk.timesnownews.com/story/RCB-logo-Twitter.jpg?tr=w-600,h-450,fo-auto');
+            background-size: 50%; 
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.15; 
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- FLOATING SEARCH --- */
+        .search-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(139, 106, 66, 0.85); 
+            padding: 12px 0;
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .search-box {
+            width: 320px; 
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 50px;
+            padding: 6px 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 2.5px solid var(--rcb-red); 
+        }
+
+        .search-box input { border: none; width: 100%; padding: 6px; outline: none; font-size: 0.9rem; }
+
+        .container { 
+            max-width: 950px; 
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* --- LOCKED HEADER NAME --- */
+        header h1 { 
+            font-family: 'Fraunces', serif; 
+            text-align: center;
+            color: var(--rcb-red); 
+            font-size: 3.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px white, -1px -1px 0px white, 1px -1px 0px white, -1px 1px 0px white;
+        }
+
+        .toolbar { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .tool-pill { background: white; padding: 8px 16px; border-radius: 50px; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--rcb-red); font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        .form-card { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 16px; 
+            margin-bottom: 30px; 
+            border-left: 6px solid var(--rcb-red);
+        }
+        .input-group { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr auto; gap: 12px; }
+        input, select { border: 1px solid #ddd; padding: 12px; border-radius: 8px; outline: none; }
+        
+        .btn-add { 
+            background: var(--rcb-red); 
+            color: white; 
+            border: none; 
+            padding: 0 25px; 
+            border-radius: 8px; 
+            font-weight: 800; 
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .filter-bar { display: flex; gap: 8px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .filter-btn { background: white; border: none; padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; cursor: pointer; color: var(--rcb-red); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .filter-btn.active { background: var(--rcb-yellow); color: black; transform: scale(1.1); }
+
+        #recipeGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .recipe-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15); transition: 0.3s; }
+        .recipe-card:hover { transform: translateY(-8px); border: 2.5px solid var(--rcb-red); }
+        .img-container { height: 150px; overflow: hidden; }
+        .recipe-img { width: 100%; height: 100%; object-fit: cover; }
+        .card-body { padding: 18px; }
+        .card-category { font-size: 0.7rem; color: var(--rcb-gold); font-weight: 800; text-transform: uppercase; }
+        .card-title { font-family: 'Fraunces', serif; font-size: 1.2rem; margin: 8px 0; color: var(--rcb-red); }
+
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--rcb-red); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        @media (max-width: 900px) { .input-group { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="search-container">
+    <div class="search-box">
+        <i class="fas fa-search" style="color: var(--rcb-red); margin-right: 8px;"></i>
+        <input type="text" id="recipeSearch" placeholder="Search by name or category..." onkeyup="renderRecipes()">
+    </div>
+</div>
+
+<div class="container">
+    <header><h1>Recipes Vault</h1></header>
+
+    <div class="toolbar">
+        <div class="tool-pill"><i class="fas fa-utensils"></i> Cook Mode <label class="switch"><input type="checkbox" id="wakeLockToggle"><span class="slider"></span></label></div>
+        <div class="tool-pill"><i class="fas fa-moon"></i> Dark Mode <label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label></div>
+    </div>
+
+    <div class="form-card">
+        <div class="input-group">
+            <input type="text" id="customName" placeholder="Custom Name (Optional)">
+            <input type="url" id="recipeUrl" placeholder="Paste URL here...">
+            <select id="recipeCategory">
+                <option value="Dinner">Dinner</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Snack">Snack</option>
+            </select>
+            <button class="btn-add" id="addBtn" onclick="addRecipe()">Add</button>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('All')">All</button>
+        <button class="filter-btn" onclick="setFilter('Breakfast')">Breakfast</button>
+        <button class="filter-btn" onclick="setFilter('Lunch')">Lunch</button>
+        <button class="filter-btn" onclick="setFilter('Dinner')">Dinner</button>
+        <button class="filter-btn" onclick="setFilter('Dessert')">Dessert</button>
+        <button class="filter-btn" onclick="setFilter('Snack')">Snack</button>
+    </div>
+
+    <div id="recipeGrid"></div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://rwjvhruqqyzdriwufgdu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_I2pte2qgqfZ8qtZ05asmxw_FCX2IMBg';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentFilter = 'All';
+    renderRecipes();
+
+    function setFilter(category) {
+        currentFilter = category;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.innerText === category) btn.classList.add('active');
+        });
+        renderRecipes();
+    }
+
+    async function addRecipe() {
+        const urlInput = document.getElementById('recipeUrl');
+        const nameInput = document.getElementById('customName');
+        const url = urlInput.value.trim();
+        const customName = nameInput.value.trim();
+        const category = document.getElementById('recipeCategory').value;
+        const btn = document.getElementById('addBtn');
+
+        if (!url) return;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+            const data = await res.json();
+            
+            const finalName = customName || data.data.title || "New Recipe";
+            const image = data.data.image ? data.data.image.url : 'https://images.unsplash.com/photo-1495195129352-aec329a778a5?auto=format&fit=crop&w=600&q=80';
+            
+            await supabaseClient.from('recipes').insert([{ name: finalName, url: url, img: image, category: category }]);
+            
+            urlInput.value = '';
+            nameInput.value = '';
+            renderRecipes();
+        } finally { btn.innerText = "Add"; btn.disabled = false; }
+    }
+
+    async function renderRecipes() {
+        const searchTerm = document.getElementById('recipeSearch').value.toLowerCase();
+        let { data: recipes } = await supabaseClient.from('recipes').select('*').order('id', { ascending: false });
+        
+        if (currentFilter !== 'All') recipes = (recipes || []).filter(r => r.category === currentFilter);
+        
+        // Search checks both Name and Category
+        if (searchTerm) {
+            recipes = (recipes || []).filter(r => 
+                r.name.toLowerCase().includes(searchTerm) || 
+                r.category.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        const grid = document.getElementById('recipeGrid');
+        grid.innerHTML = (recipes || []).map(r => `
+            <div class="recipe-card">
+                <div class="img-container">
+                    <img src="${r.img}" class="recipe-img" onerror="this.src='https://images.unsplash.com/photo-1495195129352-aec329a778a5?auto=format&fit=crop&w=600&q=80'">
+                </div>
+                <div class="card-body">
+                    <div class="card-category">${r.category}</div>
+                    <div class="card-title">${r.name}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                        <a href="${r.url}" target="_blank" style="color:var(--rcb-red); font-size:0.75rem; text-decoration:none; font-weight:800; border-bottom: 2.5px solid var(--rcb-gold);">OPEN LINK</a>
+                        <button onclick="deleteRecipe(${r.id})" style="background:none; border:none; color:#eee; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function deleteRecipe(id) {
+        if(confirm("Delete recipe?")) {
+            await supabaseClient.from('recipes').delete().eq('id', id);
+            renderRecipes();
+        }
+    }
+</script>
+</body>
+</html>
