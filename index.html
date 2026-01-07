@@ -3,44 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipes | Eat Bold</title>
+    <title>Recipes | Play Bold</title>
     
     <link rel="manifest" href="/Vault/manifest.json">
     <link rel="apple-touch-icon" href="/Vault/logo.png">
-    <meta name="theme-color" content="#cc0000">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#121212"> <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root { 
-            --rcb-red: #cc0000; 
-            --rcb-gold: #b38b59; 
+            --rcb-red: #ff3333; /* Brighter red for dark mode contrast */
+            --rcb-gold: #d4a373; 
             --rcb-yellow: #ffdd00; 
-            --card-bg: rgba(255, 255, 255, 0.95); 
+            --bg-dark: #121212;
+            --card-dark: #1e1e1e;
+            --text-bright: #ffffff;
+            --text-dim: #b0b0b0;
         }
 
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #b38b59 0%, #d4a373 50%, #8c6a42 100%);
-            background-attachment: fixed;
+            background-color: var(--bg-dark);
             margin: 0; 
             min-height: 100vh;
+            font-size: 18px;
+            color: var(--text-bright);
         }
 
+        /* Subtle logo watermark */
         body::before {
             content: "";
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             background-image: url('https://imgk.timesnownews.com/story/RCB-logo-Twitter.jpg?tr=w-600,h-450,fo-auto');
-            background-size: 50%; 
+            background-size: 60%; 
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 0.15; 
+            opacity: 0.05; 
             z-index: -1;
             pointer-events: none;
         }
@@ -49,115 +53,171 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(139, 106, 66, 0.85); 
-            padding: 12px 0;
+            background: rgba(18, 18, 18, 0.95); 
+            padding: 15px 0;
             backdrop-filter: blur(15px);
             display: flex;
             justify-content: center;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 2px solid var(--rcb-red);
         }
 
         .search-box {
-            width: 320px; 
+            width: 90%; 
+            max-width: 400px;
             display: flex;
             align-items: center;
-            background: white;
+            background: #2a2a2a;
             border-radius: 50px;
-            padding: 6px 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 2.5px solid var(--rcb-red); 
+            padding: 10px 20px;
+            border: 1px solid #444; 
         }
 
-        .search-box input { border: none; width: 100%; padding: 6px; outline: none; font-size: 0.9rem; }
+        .search-box input { 
+            border: none; 
+            width: 100%; 
+            padding: 8px; 
+            outline: none; 
+            font-size: 1.1rem; 
+            background: transparent;
+            color: white;
+        }
 
         .container { 
             max-width: 950px; 
-            margin: 40px auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto;
+            padding: 20px;
         }
 
         header h1 { 
             font-family: 'Fraunces', serif; 
             text-align: center;
             color: var(--rcb-red); 
-            font-size: 3.5rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 0px white, -1px -1px 0px white, 1px -1px 0px white, -1px 1px 0px white;
+            font-size: 4rem;
+            margin: 20px 0;
+            letter-spacing: -1px;
         }
-
-        .toolbar { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-        .tool-pill { background: white; padding: 8px 16px; border-radius: 50px; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--rcb-red); font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
         .form-card { 
-            background: var(--card-bg); 
+            background: var(--card-dark); 
             padding: 25px; 
-            border-radius: 16px; 
+            border-radius: 20px; 
             margin-bottom: 30px; 
-            border-left: 6px solid var(--rcb-red);
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .input-group { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr auto; gap: 12px; }
-        input, select { border: 1px solid #ddd; padding: 12px; border-radius: 8px; outline: none; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        
+        input, select { 
+            background: #2a2a2a;
+            border: 1px solid #444; 
+            padding: 16px; 
+            border-radius: 12px; 
+            outline: none; 
+            font-size: 1rem; 
+            color: white;
+        }
         
         .btn-add { 
-            background: var(--rcb-red); 
+            background: var(--rcb-red);
             color: white; 
             border: none; 
-            padding: 0 25px; 
-            border-radius: 8px; 
+            padding: 18px; 
+            border-radius: 12px; 
             font-weight: 800; 
+            font-size: 1.1rem;
             cursor: pointer;
             text-transform: uppercase;
         }
 
-        .filter-bar { display: flex; gap: 8px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
-        .filter-btn { background: white; border: none; padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; cursor: pointer; color: var(--rcb-red); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .filter-btn.active { background: var(--rcb-yellow); color: black; transform: scale(1.1); }
+        .filter-bar { 
+            display: flex; 
+            gap: 10px; 
+            justify-content: center; 
+            margin-bottom: 30px; 
+            overflow-x: auto; 
+            padding: 10px 0;
+        }
+        .filter-btn { 
+            background: #2a2a2a; 
+            border: 1px solid #444; 
+            padding: 12px 22px; 
+            border-radius: 50px; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            color: var(--text-dim); 
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .filter-btn.active { 
+            background: var(--rcb-red); 
+            color: white; 
+            border-color: var(--rcb-red);
+        }
 
-        #recipeGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-        .recipe-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15); transition: 0.3s; }
-        .recipe-card:hover { transform: translateY(-8px); border: 2.5px solid var(--rcb-red); }
-        .img-container { height: 150px; overflow: hidden; }
-        .recipe-img { width: 100%; height: 100%; object-fit: cover; }
-        .card-body { padding: 18px; }
-        .card-category { font-size: 0.7rem; color: var(--rcb-gold); font-weight: 800; text-transform: uppercase; }
-        .card-title { font-family: 'Fraunces', serif; font-size: 1.2rem; margin: 8px 0; color: var(--rcb-red); }
+        #recipeGrid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px; 
+        }
+        
+        .recipe-card { 
+            background: var(--card-dark); 
+            border-radius: 24px; 
+            overflow: hidden; 
+            border: 1px solid #333;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
 
-        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--rcb-red); }
-        input:checked + .slider:before { transform: translateX(16px); }
+        .img-container { height: 200px; position: relative; }
+        .recipe-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9); }
+        
+        .card-body { padding: 22px; }
+        .card-category { font-size: 0.85rem; color: var(--rcb-gold); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+        .card-title { font-family: 'Fraunces', serif; font-size: 1.6rem; margin: 0 0 20px 0; color: white; line-height: 1.2; }
 
-        @media (max-width: 900px) { .input-group { grid-template-columns: 1fr; } }
+        .card-actions { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-top: 1px solid #333; 
+            padding-top: 20px; 
+        }
+        
+        .btn-open { 
+            color: var(--rcb-red); 
+            font-size: 0.95rem; 
+            text-decoration: none; 
+            font-weight: 800; 
+            letter-spacing: 1px;
+        }
+        
+        .action-icons { display: flex; gap: 20px; }
+        .icon-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #666; transition: 0.2s; }
+        .icon-btn:hover { color: white; }
+
+        @media (min-width: 600px) {
+            .input-group { flex-direction: row; }
+            .btn-add { padding: 0 40px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="search-container">
     <div class="search-box">
-        <i class="fas fa-search" style="color: var(--rcb-red); margin-right: 8px;"></i>
-        <input type="text" id="recipeSearch" placeholder="Search by name or category..." onkeyup="renderRecipes()">
+        <i class="fas fa-search" style="color: var(--rcb-red); margin-right: 12px;"></i>
+        <input type="text" id="recipeSearch" placeholder="Search your vault..." onkeyup="renderRecipes()">
     </div>
 </div>
 
 <div class="container">
     <header><h1>Recipes</h1></header>
 
-    <div class="toolbar">
-        <div class="tool-pill"><i class="fas fa-utensils"></i> Cook Mode <label class="switch"><input type="checkbox" id="wakeLockToggle"><span class="slider"></span></label></div>
-        <div class="tool-pill"><i class="fas fa-moon"></i> Dark Mode <label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label></div>
-    </div>
-
     <div class="form-card">
         <div class="input-group">
-            <input type="text" id="customName" placeholder="Custom Name (Optional)">
-            <input type="url" id="recipeUrl" placeholder="Paste URL here...">
+            <input type="text" id="customName" placeholder="Rename (Optional)">
+            <input type="url" id="recipeUrl" placeholder="Paste link here...">
             <select id="recipeCategory">
                 <option value="Dinner">Dinner</option>
                 <option value="Lunch">Lunch</option>
@@ -165,7 +225,7 @@
                 <option value="Dessert">Dessert</option>
                 <option value="Snack">Snack</option>
             </select>
-            <button class="btn-add" id="addBtn" onclick="addRecipe()">Add</button>
+            <button class="btn-add" id="addBtn" onclick="addRecipe()">ADD</button>
         </div>
     </div>
 
@@ -188,13 +248,10 @@
 
     let currentFilter = 'All';
 
-    // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/Vault/sw.js', { scope: '/Vault/' })
-        .then(() => console.log('SW Registered'));
+        navigator.serviceWorker.register('/Vault/sw.js', { scope: '/Vault/' });
     }
 
-    // Share Target Handler
     window.addEventListener('DOMContentLoaded', () => {
         const parsedUrl = new URL(window.location);
         const sharedUrl = parsedUrl.searchParams.get('link') || parsedUrl.searchParams.get('description') || parsedUrl.searchParams.get('text') || parsedUrl.searchParams.get('url');
@@ -226,7 +283,7 @@
         const btn = document.getElementById('addBtn');
 
         if (!url) return;
-        btn.innerText = "Saving...";
+        btn.innerText = "SAVING...";
         btn.disabled = true;
 
         try {
@@ -245,7 +302,7 @@
             console.error(e);
             alert("Error saving.");
         } finally { 
-            btn.innerText = "Add"; 
+            btn.innerText = "ADD"; 
             btn.disabled = false; 
         }
     }
@@ -272,13 +329,13 @@
                 <div class="card-body">
                     <div class="card-category">${r.category}</div>
                     <div class="card-title">${r.name}</div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                        <a href="${r.url}" target="_blank" style="color:var(--rcb-red); font-size:0.75rem; text-decoration:none; font-weight:800; border-bottom: 2.5px solid var(--rcb-gold);">OPEN LINK</a>
-                        <div style="display: flex; gap: 12px;">
-                            <button onclick="editRecipe(${r.id}, '${r.name.replace(/'/g, "\\'")}')" style="background:none; border:none; color:var(--rcb-gold); cursor:pointer;">
+                    <div class="card-actions">
+                        <a href="${r.url}" target="_blank" class="btn-open">VIEW RECIPE</a>
+                        <div class="action-icons">
+                            <button onclick="editRecipe(${r.id}, '${r.name.replace(/'/g, "\\'")}')" class="icon-btn">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="deleteRecipe(${r.id})" style="background:none; border:none; color:#ccc; cursor:pointer;">
+                            <button onclick="deleteRecipe(${r.id})" class="icon-btn">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -288,22 +345,15 @@
         `).join('');
     }
 
-    // --- NEW EDIT FUNCTION ---
     async function editRecipe(id, currentName) {
         const newName = prompt("Rename recipe:", currentName);
         if (newName === null || newName.trim() === "" || newName === currentName) return;
 
         try {
-            const { error } = await supabaseClient
-                .from('recipes')
-                .update({ name: newName.trim() })
-                .eq('id', id);
-
-            if (error) throw error;
+            await supabaseClient.from('recipes').update({ name: newName.trim() }).eq('id', id);
             renderRecipes();
         } catch (e) {
             console.error(e);
-            alert("Error updating name.");
         }
     }
 
