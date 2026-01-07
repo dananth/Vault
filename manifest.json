@@ -1,7 +1,7 @@
 {
-  "name": "Recipes Vault",
-  "short_name": "Vault",
-  "description": "Play Bold Recipe Collection",
+  "name": "Recipes",
+  "short_name": "Recipes",
+  "description": "Eat Bold Recipes Collection",
   "start_url": "/Vault/index.html",
   "scope": "/Vault/",
   "display": "standalone",
