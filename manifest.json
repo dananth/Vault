@@ -9,7 +9,7 @@
   "theme_color": "#cc0000",
   "icons": [
     {
-      "src": "/Vault/logo.png",
+      "src": "/Vault/logo-maskable.png",
       "sizes": "512x512",
       "type": "image/png"
     },
