@@ -11,7 +11,7 @@
   "theme_color": "#cc0000",
   "icons": [
     {
-      "src": "logo.png",
+      "src": "/Vault/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
