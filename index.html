@@ -7,7 +7,8 @@
     
     <link rel="manifest" href="/Vault/manifest.json">
     <link rel="apple-touch-icon" href="/Vault/logo.png">
-    <meta name="theme-color" content="#121212"> <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#121212">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -16,9 +17,8 @@
     
     <style>
         :root { 
-            --rcb-red: #ff3333; /* Brighter red for dark mode contrast */
+            --rcb-red: #ff3333; 
             --rcb-gold: #d4a373; 
-            --rcb-yellow: #ffdd00; 
             --bg-dark: #121212;
             --card-dark: #1e1e1e;
             --text-bright: #ffffff;
@@ -32,6 +32,7 @@
             min-height: 100vh;
             font-size: 18px;
             color: var(--text-bright);
+            overflow-x: hidden;
         }
 
         /* Subtle logo watermark */
@@ -130,29 +131,38 @@
             text-transform: uppercase;
         }
 
+        /* ENHANCED LARGE FILTERS */
         .filter-bar { 
             display: flex; 
-            gap: 10px; 
-            justify-content: center; 
-            margin-bottom: 30px; 
+            gap: 12px; 
+            justify-content: flex-start; 
+            margin-bottom: 35px; 
             overflow-x: auto; 
-            padding: 10px 0;
+            padding: 10px 5px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
+        .filter-bar::-webkit-scrollbar { display: none; }
+
         .filter-btn { 
             background: #2a2a2a; 
-            border: 1px solid #444; 
-            padding: 12px 22px; 
+            border: 2px solid #444; 
+            padding: 14px 28px; 
             border-radius: 50px; 
-            font-size: 0.9rem; 
+            font-size: 1.15rem; 
             cursor: pointer; 
             color: var(--text-dim); 
-            font-weight: 700;
+            font-weight: 800;
             white-space: nowrap;
+            transition: all 0.2s ease;
         }
+
         .filter-btn.active { 
             background: var(--rcb-red); 
             color: white; 
             border-color: var(--rcb-red);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+            transform: scale(1.05);
         }
 
         #recipeGrid { 
@@ -199,6 +209,7 @@
         @media (min-width: 600px) {
             .input-group { flex-direction: row; }
             .btn-add { padding: 0 40px; }
+            .filter-bar { justify-content: center; }
         }
     </style>
 </head>
@@ -207,7 +218,7 @@
 <div class="search-container">
     <div class="search-box">
         <i class="fas fa-search" style="color: var(--rcb-red); margin-right: 12px;"></i>
-        <input type="text" id="recipeSearch" placeholder="Search your vault..." onkeyup="renderRecipes()">
+        <input type="text" id="recipeSearch" placeholder="Search your recipes..." onkeyup="renderRecipes()">
     </div>
 </div>
 
@@ -248,10 +259,12 @@
 
     let currentFilter = 'All';
 
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/Vault/sw.js', { scope: '/Vault/' });
     }
 
+    // Share Target Handler
     window.addEventListener('DOMContentLoaded', () => {
         const parsedUrl = new URL(window.location);
         const sharedUrl = parsedUrl.searchParams.get('link') || parsedUrl.searchParams.get('description') || parsedUrl.searchParams.get('text') || parsedUrl.searchParams.get('url');
