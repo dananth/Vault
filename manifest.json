@@ -1,0 +1,24 @@
+{
+  "name": "Recipes Vault",
+  "short_name": "Vault",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#b38b59",
+  "theme_color": "#cc0000",
+  "icons": [
+    {
+      "src": "https://imgk.timesnownews.com/story/RCB-logo-Twitter.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "share_target": {
+    "action": "/index.html",
+    "method": "GET",
+    "params": {
+      "title": "name",
+      "text": "description",
+      "url": "link"
+    }
+  }
+}
