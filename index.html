@@ -188,14 +188,13 @@
 
     let currentFilter = 'All';
 
-    // --- SERVICE WORKER REGISTRATION ---
-    // Using '/Vault/' scope explicitly for GitHub Pages
+    // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/Vault/sw.js', { scope: '/Vault/' })
-        .then(() => console.log('Service Worker Registered with Scope: /Vault/'));
+        .then(() => console.log('SW Registered'));
     }
 
-    // --- SHARE TARGET HANDLER ---
+    // Share Target Handler
     window.addEventListener('DOMContentLoaded', () => {
         const parsedUrl = new URL(window.location);
         const sharedUrl = parsedUrl.searchParams.get('link') || parsedUrl.searchParams.get('description') || parsedUrl.searchParams.get('text') || parsedUrl.searchParams.get('url');
@@ -244,7 +243,7 @@
             renderRecipes();
         } catch (e) {
             console.error(e);
-            alert("Error saving recipe. Check console.");
+            alert("Error saving.");
         } finally { 
             btn.innerText = "Add"; 
             btn.disabled = false; 
@@ -275,11 +274,37 @@
                     <div class="card-title">${r.name}</div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
                         <a href="${r.url}" target="_blank" style="color:var(--rcb-red); font-size:0.75rem; text-decoration:none; font-weight:800; border-bottom: 2.5px solid var(--rcb-gold);">OPEN LINK</a>
-                        <button onclick="deleteRecipe(${r.id})" style="background:none; border:none; color:#ccc; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="editRecipe(${r.id}, '${r.name.replace(/'/g, "\\'")}')" style="background:none; border:none; color:var(--rcb-gold); cursor:pointer;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteRecipe(${r.id})" style="background:none; border:none; color:#ccc; cursor:pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         `).join('');
+    }
+
+    // --- NEW EDIT FUNCTION ---
+    async function editRecipe(id, currentName) {
+        const newName = prompt("Rename recipe:", currentName);
+        if (newName === null || newName.trim() === "" || newName === currentName) return;
+
+        try {
+            const { error } = await supabaseClient
+                .from('recipes')
+                .update({ name: newName.trim() })
+                .eq('id', id);
+
+            if (error) throw error;
+            renderRecipes();
+        } catch (e) {
+            console.error(e);
+            alert("Error updating name.");
+        }
     }
 
     async function deleteRecipe(id) {
