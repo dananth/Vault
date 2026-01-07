@@ -35,7 +35,6 @@
             overflow-x: hidden;
         }
 
-        /* Subtle logo watermark */
         body::before {
             content: "";
             position: fixed;
@@ -107,31 +106,41 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
-        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        /* Fixed Input Group to make ADD button uniform */
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
         
-        input, select { 
+        input, select, .btn-add { 
+            width: 100%; /* Forces everything to same width */
+            box-sizing: border-box;
             background: #2a2a2a;
             border: 1px solid #444; 
-            padding: 16px; 
+            padding: 18px; 
             border-radius: 12px; 
             outline: none; 
-            font-size: 1rem; 
+            font-size: 1.1rem; 
             color: white;
+            font-family: 'Inter', sans-serif;
         }
         
         .btn-add { 
             background: var(--rcb-red);
-            color: white; 
-            border: none; 
-            padding: 18px; 
-            border-radius: 12px; 
+            border: none;
             font-weight: 800; 
-            font-size: 1.1rem;
             cursor: pointer;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.2s ease;
         }
 
-        /* ENHANCED LARGE FILTERS */
+        .btn-add:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+
         .filter-bar { 
             display: flex; 
             gap: 12px; 
@@ -154,7 +163,6 @@
             color: var(--text-dim); 
             font-weight: 800;
             white-space: nowrap;
-            transition: all 0.2s ease;
         }
 
         .filter-btn.active { 
@@ -162,7 +170,6 @@
             color: white; 
             border-color: var(--rcb-red);
             box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
-            transform: scale(1.05);
         }
 
         #recipeGrid { 
@@ -176,7 +183,6 @@
             border-radius: 24px; 
             overflow: hidden; 
             border: 1px solid #333;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
         .img-container { height: 200px; position: relative; }
@@ -194,21 +200,12 @@
             padding-top: 20px; 
         }
         
-        .btn-open { 
-            color: var(--rcb-red); 
-            font-size: 0.95rem; 
-            text-decoration: none; 
-            font-weight: 800; 
-            letter-spacing: 1px;
-        }
+        .btn-open { color: var(--rcb-red); font-size: 0.95rem; text-decoration: none; font-weight: 800; letter-spacing: 1px; }
         
         .action-icons { display: flex; gap: 20px; }
-        .icon-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #666; transition: 0.2s; }
-        .icon-btn:hover { color: white; }
+        .icon-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #666; }
 
         @media (min-width: 600px) {
-            .input-group { flex-direction: row; }
-            .btn-add { padding: 0 40px; }
             .filter-bar { justify-content: center; }
         }
     </style>
@@ -259,12 +256,10 @@
 
     let currentFilter = 'All';
 
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/Vault/sw.js', { scope: '/Vault/' });
     }
 
-    // Share Target Handler
     window.addEventListener('DOMContentLoaded', () => {
         const parsedUrl = new URL(window.location);
         const sharedUrl = parsedUrl.searchParams.get('link') || parsedUrl.searchParams.get('description') || parsedUrl.searchParams.get('text') || parsedUrl.searchParams.get('url');
