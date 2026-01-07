@@ -7,9 +7,10 @@
   "theme_color": "#cc0000",
   "icons": [
     {
-      "src": "https://imgk.timesnownews.com/story/RCB-logo-Twitter.jpg",
+      "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
+      "purpose": "any maskable"
     }
   ],
   "share_target": {
