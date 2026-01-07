@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipes Vault | Play Bold</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/Vault/manifest.json">
     <meta name="theme-color" content="#cc0000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -185,21 +187,22 @@
 
     let currentFilter = 'All';
 
-    // --- SERVICE WORKER REGISTRATION (For Android Install) ---
+    // --- SERVICE WORKER REGISTRATION ---
+    // Using '/Vault/' scope explicitly for GitHub Pages
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('/Vault/sw.js', { scope: '/Vault/' })
+        .then(() => console.log('Service Worker Registered with Scope: /Vault/'));
     }
 
     // --- SHARE TARGET HANDLER ---
     window.addEventListener('DOMContentLoaded', () => {
         const parsedUrl = new URL(window.location);
-        const sharedUrl = parsedUrl.searchParams.get('link') || parsedUrl.searchParams.get('description') || parsedUrl.searchParams.get('text');
+        const sharedUrl = parsedUrl.searchParams.get('link') || parsedUrl.searchParams.get('description') || parsedUrl.searchParams.get('text') || parsedUrl.searchParams.get('url');
         const sharedTitle = parsedUrl.searchParams.get('name') || parsedUrl.searchParams.get('title');
 
         if (sharedUrl) {
             document.getElementById('recipeUrl').value = sharedUrl;
             if (sharedTitle) document.getElementById('customName').value = sharedTitle;
-            // Focus the category or add button for quick saving
             document.getElementById('recipeCategory').focus();
         }
         renderRecipes();
@@ -230,15 +233,21 @@
             const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
             const data = await res.json();
             
-            const finalName = customName || data.data.title || "New Recipe";
-            const image = data.data.image ? data.data.image.url : 'https://images.unsplash.com/photo-1495195129352-aec329a778a5?auto=format&fit=crop&w=600&q=80';
+            const finalName = customName || (data.data && data.data.title) || "New Recipe";
+            const image = (data.data && data.data.image) ? data.data.image.url : 'https://images.unsplash.com/photo-1495195129352-aec329a778a5?auto=format&fit=crop&w=600&q=80';
             
             await supabaseClient.from('recipes').insert([{ name: finalName, url: url, img: image, category: category }]);
             
             urlInput.value = '';
             nameInput.value = '';
             renderRecipes();
-        } finally { btn.innerText = "Add"; btn.disabled = false; }
+        } catch (e) {
+            console.error(e);
+            alert("Error saving recipe. Check console.");
+        } finally { 
+            btn.innerText = "Add"; 
+            btn.disabled = false; 
+        }
     }
 
     async function renderRecipes() {
@@ -265,7 +274,7 @@
                     <div class="card-title">${r.name}</div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
                         <a href="${r.url}" target="_blank" style="color:var(--rcb-red); font-size:0.75rem; text-decoration:none; font-weight:800; border-bottom: 2.5px solid var(--rcb-gold);">OPEN LINK</a>
-                        <button onclick="deleteRecipe(${r.id})" style="background:none; border:none; color:#eee; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                        <button onclick="deleteRecipe(${r.id})" style="background:none; border:none; color:#ccc; cursor:pointer;"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             </div>
