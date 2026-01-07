@@ -1,8 +1,6 @@
 {
   "name": "Recipes Vault",
   "short_name": "Vault",
-  "version": "1.1", 
-  "description": "Updated Logo Edition",
   "description": "Play Bold Recipe Collection",
   "start_url": "/Vault/index.html",
   "scope": "/Vault/",
@@ -15,6 +13,11 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/Vault/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
     }
   ],
   "share_target": {
